@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from "react";
 import VerifyButton from "@/components/VerifyButton";
+import InvitePanel from "@/components/InvitePanel";
+import { ROOM } from "@/lib/room";
 
 type Pass = { id: string; room: string; credential: string; valid_until: string };
-
-const ROOM = "Akiya Basecamp · Room 1";
 
 export default function HostPage() {
   const [pass, setPass] = useState<Pass | null>(null);
@@ -43,12 +43,15 @@ export default function HostPage() {
           {error && <p className="text-red-600">{error}</p>}
         </>
       ) : (
+        <>
         <section className="rounded-2xl border p-5">
           <p className="text-sm text-zinc-500">Host pass</p>
           <p className="text-xl font-semibold">{pass.room}</p>
           <p className="mt-2 text-sm">Verified with: {pass.credential}</p>
           <p className="text-sm">Valid until: {new Date(pass.valid_until).toLocaleString()}</p>
         </section>
+        <InvitePanel />
+        </>
       )}
     </main>
   );
