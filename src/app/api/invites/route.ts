@@ -21,8 +21,8 @@ export async function POST(request: Request) {
   const code = crypto.randomUUID().replace(/-/g, "").slice(0, 8);
   const stayUntil = new Date(Date.now() + STAYS[stay]);
   const expiresAt = new Date(Date.now() + 24 * 3600 * 1000); // invite link lives 24h
-  await sql`INSERT INTO invites (code, host_pass_id, room, guest_label, stay_until, expires_at)
-            VALUES (${code}, ${hostPassId}, ${host.room}, ${guestLabel}, ${stayUntil}, ${expiresAt})`;
+  await sql`INSERT INTO invites (code, host_pass_id, room, guest_label, stay_until, expires_at, stay_ms)
+            VALUES (${code}, ${hostPassId}, ${host.room}, ${guestLabel}, ${stayUntil}, ${expiresAt}, ${STAYS[stay]})`;
   return Response.json({ code, stayUntil });
 }
 

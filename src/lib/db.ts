@@ -28,6 +28,7 @@ export function ensureSchema() {
       used_by_pass_id TEXT,
       created_at TIMESTAMPTZ NOT NULL DEFAULT now()
     )`;
+    await sql`ALTER TABLE invites ADD COLUMN IF NOT EXISTS stay_ms BIGINT`;
     await sql`CREATE TABLE IF NOT EXISTS entries (
       id BIGSERIAL PRIMARY KEY,
       pass_id TEXT,

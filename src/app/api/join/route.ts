@@ -4,7 +4,7 @@ import { verifyWithWorld } from "@/lib/world";
 
 async function loadInvite(code: string) {
   await ensureSchema();
-  const [invite] = await sql`SELECT code, room, guest_label, stay_until, expires_at, used_by_pass_id
+  const [invite] = await sql`SELECT code, room, guest_label, stay_until, stay_ms, expires_at, used_by_pass_id
                              FROM invites WHERE code = ${code}`;
   if (!invite) return { error: "This invite does not exist." };
   if (invite.used_by_pass_id) return { error: "This invite was already used by someone else." };
@@ -34,9 +34,11 @@ export async function POST(request: Request) {
   }
 
   const id = newId("pass");
+  // The stay starts when the friend accepts, not when the host created the invite.
+  const validUntil = invite!.stay_ms ? new Date(Date.now() + Number(invite!.stay_ms)) : invite!.stay_until;
   await sql`INSERT INTO passes (id, role, nullifier, credential, room, valid_until, invite_code)
             VALUES (${id}, 'guest', ${verified.nullifier}, ${verified.credential}, ${invite!.room},
-                    ${invite!.stay_until}, ${code})`;
+                    ${validUntil}, ${code})`;
   // Single use: the pass is tied to this person, the invite cannot be passed on.
   const used = await sql`UPDATE invites SET used_by_pass_id = ${id}
                          WHERE code = ${code} AND used_by_pass_id IS NULL RETURNING code`;
@@ -46,5 +48,5 @@ export async function POST(request: Request) {
   }
 
   (await cookies()).set("guest_pass", id, { httpOnly: true, sameSite: "lax", path: "/" });
-  return Response.json({ passId: id, room: invite!.room, validUntil: invite!.stay_until, credential: verified.credential });
+  return Response.json({ passId: id, room: invite!.room, validUntil, credential: verified.credential });
 }
