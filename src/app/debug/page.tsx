@@ -50,7 +50,10 @@ export default function DebugPage() {
       <section className="flex flex-col gap-3 rounded-xl border p-4">
         <h2 className="font-semibold">Test: Human credential (proof_of_human)</h2>
         <p className="text-sm">Switch the simulator identity, then press again. Each result is added below.</p>
-        <VerifyButton label="Verify with Human credential" signal="debug" credentials={["proof_of_human"]} onVerified={onHuman} />
+        <VerifyButton label="Verify with Human credential" signal="debug" credentials={["proof_of_human"]} preset={null} onVerified={onHuman} />
+        <VerifyButton label="Verify with passport / My Number Card" signal="debug" preset={null} onVerified={onHuman} />
+        <VerifyButton label="Preset: mnc()" signal="debug" preset="mnc" onVerified={onHuman} />
+        <VerifyButton label="Preset: documentLegacy() (v3)" signal="debug" preset="documentLegacy" onVerified={onHuman} />
         <table className="w-full text-left text-sm">
           <thead><tr><th>Time</th><th>Credential</th><th>Nullifier</th></tr></thead>
           <tbody>

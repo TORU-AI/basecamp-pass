@@ -38,7 +38,6 @@ export default function DoorPage() {
       <VerifyButton
         label={result ? "Try again" : "Open with World ID"}
         signal={`door:${ROOM}`}
-        credentials={["passport", "mnc", "selfie"]}
         onVerified={onVerified}
       />
     </main>
