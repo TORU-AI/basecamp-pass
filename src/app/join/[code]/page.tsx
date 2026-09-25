@@ -4,8 +4,8 @@ import { use, useEffect, useState } from "react";
 import Link from "next/link";
 import VerifyButton from "@/components/VerifyButton";
 
-type Invite = { room: string; guest_label: string; stay_until: string };
-type Pass = { room: string; validUntil: string; credential: string };
+type Invite = { room: string; guest_label: string; stay_until: string; stay_ms: string | null };
+type Pass = { room: string; validUntil: string; credential: string; nullifier: string };
 
 export default function JoinPage({ params }: { params: Promise<{ code: string }> }) {
   const { code } = use(params);
@@ -42,6 +42,7 @@ export default function JoinPage({ params }: { params: Promise<{ code: string }>
           <p className="text-xl font-semibold">{pass.room}</p>
           <p className="mt-2 text-sm">Verified with: {pass.credential}</p>
           <p className="text-sm">Valid until: {new Date(pass.validUntil).toLocaleString()}</p>
+          <p className="mt-2 break-all font-mono text-xs text-zinc-500">nullifier 0x{BigInt(pass.nullifier).toString(16)}</p>
           <Link href="/door" className="mt-4 block text-center underline">Go to the door →</Link>
         </section>
       ) : error ? (
@@ -51,7 +52,11 @@ export default function JoinPage({ params }: { params: Promise<{ code: string }>
           <section className="rounded-2xl border p-5">
             <p className="text-sm text-zinc-500">For {invite.guest_label}</p>
             <p className="text-xl font-semibold">{invite.room}</p>
-            <p className="text-sm">Stay until {new Date(invite.stay_until).toLocaleString()}</p>
+            <p className="text-sm">
+              {invite.stay_ms
+                ? `Stay: ${Number(invite.stay_ms) / 60e3} minutes from when you accept`
+                : `Stay until ${new Date(invite.stay_until).toLocaleString()}`}
+            </p>
           </section>
           <p className="text-zinc-600 dark:text-zinc-400">
             The host only lets in people who prove a real passport or My Number Card. Your document

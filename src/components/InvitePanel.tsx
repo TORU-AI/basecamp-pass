@@ -3,7 +3,9 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 
-type Invite = { code: string; guest_label: string; stay_until: string; used_by_pass_id: string | null };
+type Invite = { code: string; guest_label: string; stay_until: string; stay_ms: string | null; used_by_pass_id: string | null };
+
+const stayText = (ms: number) => (ms < 3600e3 ? `${ms / 60e3} minutes` : ms < 86400e3 * 2 ? "24 hours" : `${ms / 86400e3} days`);
 
 const STAYS = [
   { value: "demo", label: "2 minutes (demo)" },
@@ -61,7 +63,7 @@ export default function InvitePanel() {
         {invites.map((i) => (
           <li key={i.code} className="rounded-lg bg-zinc-100 p-3 text-sm dark:bg-zinc-900">
             <p className="font-semibold">{i.guest_label}</p>
-            <p>Stay until {new Date(i.stay_until).toLocaleString()}</p>
+            <p>{i.stay_ms ? `Stay: ${stayText(Number(i.stay_ms))} from acceptance` : `Stay until ${new Date(i.stay_until).toLocaleString()}`}</p>
             {i.used_by_pass_id ? (
               <p className="text-green-600">✓ Verified and joined</p>
             ) : (

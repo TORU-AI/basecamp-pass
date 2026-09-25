@@ -21,14 +21,14 @@ export async function POST(request: Request) {
             VALUES (${id}, 'host', ${verified.nullifier}, ${verified.credential}, ${room}, ${until})`;
 
   (await cookies()).set("host_pass", id, { httpOnly: true, sameSite: "lax", path: "/" });
-  return Response.json({ passId: id, room, validUntil: until, credential: verified.credential });
+  return Response.json({ passId: id, room, validUntil: until, credential: verified.credential, nullifier: verified.nullifier });
 }
 
 export async function GET() {
   const passId = (await cookies()).get("host_pass")?.value;
   if (!passId) return Response.json({ pass: null });
   await ensureSchema();
-  const [pass] = await sql`SELECT id, room, credential, valid_until FROM passes
+  const [pass] = await sql`SELECT id, room, credential, valid_until, nullifier FROM passes
                            WHERE id = ${passId} AND role = 'host'`;
   return Response.json({ pass: pass ?? null });
 }

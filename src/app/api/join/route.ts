@@ -48,5 +48,5 @@ export async function POST(request: Request) {
   }
 
   (await cookies()).set("guest_pass", id, { httpOnly: true, sameSite: "lax", path: "/" });
-  return Response.json({ passId: id, room: invite!.room, validUntil, credential: verified.credential });
+  return Response.json({ passId: id, room: invite!.room, validUntil, credential: verified.credential, nullifier: verified.nullifier });
 }

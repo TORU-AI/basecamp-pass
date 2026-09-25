@@ -30,7 +30,7 @@ export async function GET() {
   const hostPassId = (await cookies()).get("host_pass")?.value;
   if (!hostPassId) return Response.json({ invites: [] });
   await ensureSchema();
-  const invites = await sql`SELECT code, guest_label, stay_until, expires_at, used_by_pass_id
+  const invites = await sql`SELECT code, guest_label, stay_until, stay_ms, expires_at, used_by_pass_id
                             FROM invites WHERE host_pass_id = ${hostPassId} ORDER BY created_at DESC`;
   return Response.json({ invites });
 }
