@@ -13,3 +13,6 @@ Following the ETHGlobal Tokyo 2026 AI guidelines.
 |---|---|---|
 | 09-25 21:11 | `create-next-app` scaffold (public starter) | ran the generator |
 | 09-25 21:15 | PLAN.md from Toru's decisions | wrote down Toru's decisions |
+| 09-25 21:20–23:20 | Host check-in, invites, join, door, register, Neon schema | wrote code under Toru's direction; Toru tested every step with the simulator and his real World App |
+| 09-25 22:00–23:10 | Debugging staging nullifiers / credential_unavailable | built the /debug page Toru showed to the World team; switched to the preset that worked in Toru's real test |
+| 09-25 23:20 | Deploy to Vercel (https://basecamp-pass.vercel.app) | ran the deploy after Toru approved |
