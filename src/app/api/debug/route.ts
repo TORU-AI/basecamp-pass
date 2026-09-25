@@ -2,7 +2,12 @@ import { ensureSchema, sql } from "@/lib/db";
 import { verifyWithWorld } from "@/lib/world";
 
 // Temporary: shows the nullifier each pass was created with, to debug staging behaviour.
+// Local debugging only: never exposed on the deployed site.
+const hidden = () => (process.env.VERCEL ? new Response("Not found", { status: 404 }) : null);
+
 export async function GET() {
+  const h = hidden();
+  if (h) return h;
   await ensureSchema();
   const passes = await sql`
     SELECT p.role, i.guest_label, p.credential, p.nullifier, p.created_at
@@ -13,6 +18,8 @@ export async function GET() {
 
 // Temporary: verify any credential and return the nullifier without creating a pass.
 export async function POST(request: Request) {
+  const h = hidden();
+  if (h) return h;
   const { idkitResponse } = await request.json();
   try {
     const v = await verifyWithWorld(idkitResponse, "debug");
