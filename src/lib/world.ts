@@ -30,6 +30,8 @@ export async function verifyWithWorld(
     body: JSON.stringify(idkitResponse),
   });
   const body = await res.json().catch(() => ({}));
+  console.log("[world verify]", res.status, idkitResponse.environment,
+    idkitResponse.responses?.map((r) => r.identifier), JSON.stringify(body).slice(0, 300));
   if (!res.ok) throw new Error(`World verification failed: ${JSON.stringify(body)}`);
   if (idkitResponse.environment !== WORLD_ENV) throw new Error("Wrong World ID environment");
 

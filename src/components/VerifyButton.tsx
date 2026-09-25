@@ -62,7 +62,9 @@ export default function VerifyButton({ label, signal, credentials = DOCUMENT, re
           rp_context={rpContext}
           allow_legacy_proofs={false}
           environment={WORLD_ENV}
-          require_user_presence={requirePresence}
+          // The staging simulator cannot run a live face check, so presence is only
+          // requested in production.
+          require_user_presence={requirePresence && WORLD_ENV === "production"}
           // Bind the request context (room / invite code / door) into every credential request.
           constraints={any(...credentials.map((c) => CredentialRequest(c, { signal })))}
           handleVerify={onVerified}
