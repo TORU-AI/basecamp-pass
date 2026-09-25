@@ -37,3 +37,12 @@ and a guest register for **every** person who stays.
 
 ## Out of scope for the demo (explained only)
 E-contract for fixed-term lease, card prepayment, luggage storage billing.
+
+## Findings during the hackathon (for the World integration debrief)
+- 22:00 Staging simulator: every identity (#2, #4) and every credential (passport, proof_of_human) returned the
+  **same nullifier** → two different people cannot be tested in staging. Reported to the World team at the booth.
+- Simulator cannot do `require_user_presence` ("Presence check failed") → presence only requested in production.
+- 23:00 Production, real World App + **My Number Card**:
+  - World ID 4.0 `any(passport, mnc)` constraints → `credential_unavailable`
+  - `mnc` / legacy document preset → v3 `secure_document` proof, verified, **unique nullifier**
+  - `require_user_presence` → World App showed the **live face check**, then succeeded (host check-in)
