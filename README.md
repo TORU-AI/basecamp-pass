@@ -3,7 +3,7 @@
 **World ID says who you are. Ethereum says whether you may enter.**
 
 A digital key for vacant houses (akiya) and guesthouses in Japan. A guest proves their identity with
-World ID (passport or My Number Card, with a live face check), the property manager issues a
+World ID (passport or My Number Card; the contract holder also passes a live face check at check-in), the property manager issues a
 **non-transferable access key on Ethereum**, and the door opens only when **both** are true:
 
 1. the person is verified with World ID, **and**
