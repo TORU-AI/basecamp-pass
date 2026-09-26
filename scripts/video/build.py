@@ -116,9 +116,62 @@ def closing_slide():
     return img
 
 
+def text_slide(step, heading, bullets, foot=""):
+    img, d = canvas(step)
+    d.text((W / 2, 200), heading, font=font(66, True), fill=FG, anchor="mm")
+    y = 330
+    for b in bullets:
+        f = font(40)
+        for i, ln in enumerate(wrap(d, b, f, W - 520)):
+            d.text((260, y), ("•  " if i == 0 else "    ") + ln, font=f, fill=FG)
+            y += 58
+        y += 22
+    if foot:
+        caption(d, foot)
+    return img
+
+
+def code_slide(step, heading, code, foot):
+    img, d = canvas(step)
+    d.text((W / 2, 190), heading, font=font(60, True), fill=FG, anchor="mm")
+    mono = ImageFont.truetype("/System/Library/Fonts/Menlo.ttc", 30)
+    x0, y0 = 240, 280
+    lines = code.strip("\n").split("\n")
+    d.rounded_rectangle([x0 - 40, y0 - 30, W - 200, y0 + len(lines) * 44 + 20], radius=18, fill=(28, 28, 32))
+    for i, ln in enumerate(lines):
+        d.text((x0, y0 + i * 44), ln, font=mono, fill=(200, 220, 255) if ln.strip().startswith("function") else FG)
+    caption(d, foot)
+    return img
+
+
+def flow_slide():
+    img, d = canvas("How it works")
+    boxes = [("Phone", "World App\nscan door QR"), ("Server", "verify proof\nnullifier -> holder"), ("Ethereum", "hasValidAccess\n(holder, room 101)"), ("Door", "GRANTED\nor DENIED")]
+    bw, gap, top = 330, 90, 330
+    x0 = (W - (4 * bw + 3 * gap)) / 2
+    for i, (h, body) in enumerate(boxes):
+        x = x0 + i * (bw + gap)
+        d.rounded_rectangle([x, top, x + bw, top + 300], radius=24, outline=(120, 120, 140), width=4)
+        d.text((x + bw / 2, top + 70), h, font=font(48, True), fill=FG, anchor="mm")
+        d.multiline_text((x + bw / 2, top + 190), body, font=font(32), fill=DIM, anchor="mm", align="center", spacing=12)
+        if i < 3:
+            ax = x + bw + 12
+            d.line([ax, top + 150, ax + gap - 24, top + 150], fill=FG, width=6)
+            d.polygon([(ax + gap - 24, top + 136), (ax + gap - 6, top + 150), (ax + gap - 24, top + 164)], fill=FG)
+    caption(d, "Guests need no wallet: one holder address per person, derived from the World ID nullifier")
+    return img
+
+
 SLIDES = [
     (title_slide, "Japan has millions of empty houses. We want to turn them into a basecamp for travelers and working-holiday makers: stay, leave your luggage, travel, come back. But giving a stranger the key to a home needs trust."),
+    (lambda: text_slide("Why", "Why we built this", [
+        "Toru runs a guesthouse in Asakusa, Tokyo.",
+        "He helped a working-holiday visitor from Uruguay settle in: an address, a phone, a bank account, the local festival, a job hunt.",
+        "Japan has millions of cheap vacant houses. They could be a basecamp: stay, leave luggage, travel, come back.",
+        "Japanese minpaku law requires an identity check and a guest register for every guest.",
+    ]), "This idea comes from real life. Toru runs a guesthouse in Asakusa, and helped a working-holiday visitor from Uruguay settle in Japan: an address, a phone, a bank account, even the local festival. Japan has millions of cheap vacant houses that could become a basecamp. But the law requires an identity check and a guest register for every guest, and the owner must trust the person who gets the key."),
     (concept_slide, "Basecamp Pass splits that trust in two. World ID says who you are. Ethereum says whether you may enter this room, right now. The door needs both."),
+    (flow_slide, "Here is the flow. The guest scans the QR code on the door screen with World App. Our server verifies the proof with World, and gets a nullifier, which is the same for the same person. From it, the server derives a holder address, so the guest needs no wallet. Then it asks the contract on Ethereum: does this holder have a valid key for room one oh one, right now? Only if the answer is true, the door opens."),
     (lambda: shot_slide("03-world-id-connect-phone.png", "1 · Identity", "Scan the door QR with World App (My Number Card)"),
      "I checked in once with my My Number Card and a live face check. Now, at the door, I scan the QR code with World App. We never see the document."),
     (lambda: shot_slide("04-door-denied-no-key.png", "1 · Identity", "Identity verified, but no key on chain: DENIED", RED),
@@ -133,6 +186,37 @@ SLIDES = [
      "In an emergency, the manager revokes the key on chain."),
     (lambda: shot_slide("10-door-denied-revoked.png", "4 · Emergency", "Same person again, key revoked: DENIED", RED),
      "Same person again. World ID still succeeds, but the key is revoked, so access is denied."),
+    (lambda: code_slide("Smart contract", "One rule the door calls", """
+function hasValidAccess(address user, bytes32 roomId) view returns (bool)
+    for each key the user holds:
+        if key.roomId == roomId
+           and validFrom <= block.timestamp <= validUntil
+           and not key.revoked:
+            return true
+    return false
+
+function issue(holder, roomId, validFrom, validUntil)   onlyOwner
+function revoke(tokenId)                                 onlyOwner
+transferFrom / approve / setApprovalForAll                -> revert (soulbound)
+""", "ERC-721 + ERC-5192: a key cannot be transferred, approved or sold"),
+     "The contract is small on purpose. The door calls one rule: has valid access. It is true only if the user holds a key for this room, inside its time window, and not revoked. Only the property manager can issue or revoke. Every transfer and approval reverts, so a key is bound to one person and cannot be sold."),
+    (lambda: text_slide("Privacy", "What goes on chain, and what never does", [
+        "On chain: holder address, token id, room id, valid from, valid until, status.",
+        "Never on chain: name, address, My Number, passport number, face image, or the World ID nullifier.",
+        "The holder address is an HMAC of the nullifier with a server secret: it cannot be linked back without the secret.",
+    ]), "Privacy matters here. On chain we only keep a holder address, the token id, the room, the time window, and the status. Names, My Number, passport numbers, face images, and even the World ID nullifier never go on chain."),
+    (lambda: text_slide("Tests", "Friend B, tested locally with 15 checks", [
+        "A and B have different nullifiers, so different holder addresses.",
+        "A with a key: granted.  B without a key: denied.  Wrong room: denied.",
+        "A tries to transfer the key to B: reverts. B is still denied.",
+        "Not yet valid: denied.  After the window: expired.  After revoke: denied.",
+    ], "15 / 15 PASS on a local anvil chain, using the same library as the app"),
+     "We tested two different people, contract holder A and friend B, on a local chain with the same code the app uses. A with a key is granted. B without a key is denied. If A tries to transfer the key to B, the transaction reverts. Not yet valid, expired, and revoked keys are all denied. Fifteen out of fifteen checks pass."),
+    (lambda: text_slide("Honest status", "What we could not finish", [
+        "A second real person in production: our helper could not come tonight. Friend B is covered by the local tests.",
+        "In the World ID staging simulator, every identity returned the same nullifier. We reported it to the World team.",
+        "No physical smart lock yet: the door screen shows the result, and lib/lock.ts is the adapter for SwitchBot or SESAME.",
+    ]), "To be honest about what is not done. We could not test a second real person in production tonight, so friend B is covered by the local tests. In the World ID staging simulator every identity returned the same nullifier, which we reported to the World team. And there is no physical lock yet: the adapter is ready for SwitchBot or SESAME."),
     (closing_slide, "Identity and access right are working today. Next come the e-contract, payment in JPYC, and a real smart lock. Basecamp Pass. A home base in Japan, opened only for the right person."),
 ]
 
