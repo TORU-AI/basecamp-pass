@@ -98,7 +98,7 @@ export default function AdminPage() {
       <section>
         <h2 className="mb-2 font-semibold">People verified with World ID</h2>
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
+          <table className="w-full text-left text-sm [&_td]:pr-6 [&_th]:pr-6">
             <thead><tr className="text-zinc-500"><th>Who</th><th>World ID</th><th>Holder</th><th>Digital keys (on chain)</th><th /></tr></thead>
             <tbody>
               {data.people.map((p) => (
@@ -146,7 +146,7 @@ export default function AdminPage() {
 
       <section>
         <h2 className="mb-2 font-semibold">Door log</h2>
-        <table className="w-full text-left text-sm">
+        <table className="w-full text-left text-sm [&_td]:pr-6 [&_th]:pr-6">
           <thead><tr className="text-zinc-500"><th>Time</th><th>Holder</th><th>Result</th><th>Reason</th></tr></thead>
           <tbody>
             {data.entries.map((e, i) => (
