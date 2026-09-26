@@ -37,6 +37,18 @@ export function ensureSchema() {
       reason TEXT NOT NULL,
       at TIMESTAMPTZ NOT NULL DEFAULT now()
     )`;
+    // Ethereum access keys: the chain decides validity; this only remembers which pass a key
+    // was issued for, so the admin screen can show labels. No personal data goes on chain.
+    await sql`ALTER TABLE entries ADD COLUMN IF NOT EXISTS holder TEXT`;
+    await sql`ALTER TABLE entries ADD COLUMN IF NOT EXISTS token_id TEXT`;
+    await sql`CREATE TABLE IF NOT EXISTS chain_keys (
+      token_id TEXT PRIMARY KEY,
+      pass_id TEXT NOT NULL REFERENCES passes(id),
+      holder TEXT NOT NULL,
+      room_id TEXT NOT NULL,
+      tx_hash TEXT NOT NULL,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    )`;
   })();
   return ready;
 }

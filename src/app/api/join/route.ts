@@ -1,6 +1,8 @@
 import { cookies } from "next/headers";
 import { ensureSchema, newId, sql } from "@/lib/db";
 import { verifyWithWorld } from "@/lib/world";
+import { holderAddress, issueKey } from "@/lib/chain";
+import { ROOM_ID } from "@/lib/room";
 
 async function loadInvite(code: string) {
   await ensureSchema();
@@ -45,6 +47,18 @@ export async function POST(request: Request) {
   if (used.length === 0) {
     await sql`DELETE FROM passes WHERE id = ${id}`;
     return Response.json({ error: "This invite was already used by someone else." }, { status: 410 });
+  }
+
+  // Guest access key on Ethereum for exactly the stay window; the door checks this, not the DB.
+  const holder = holderAddress(verified.nullifier);
+  try {
+    const { tokenId, txHash } = await issueKey(holder, ROOM_ID, new Date(), new Date(validUntil));
+    await sql`INSERT INTO chain_keys (token_id, pass_id, holder, room_id, tx_hash)
+              VALUES (${tokenId}, ${id}, ${holder}, ${ROOM_ID}, ${txHash})`;
+  } catch (e) {
+    await sql`UPDATE invites SET used_by_pass_id = NULL WHERE code = ${code}`;
+    await sql`DELETE FROM passes WHERE id = ${id}`;
+    return Response.json({ error: `Could not issue the key: ${(e as Error).message.split("\n")[0]}` }, { status: 500 });
   }
 
   (await cookies()).set("guest_pass", id, { httpOnly: true, sameSite: "lax", path: "/" });

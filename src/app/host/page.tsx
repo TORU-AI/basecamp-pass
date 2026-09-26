@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import VerifyButton from "@/components/VerifyButton";
 import InvitePanel from "@/components/InvitePanel";
 import { ROOM } from "@/lib/room";
@@ -50,6 +51,7 @@ export default function HostPage() {
           <p className="mt-2 text-sm">Verified with: {pass.credential}</p>
           <p className="text-sm">Valid until: {new Date(pass.valid_until).toLocaleString()}</p>
           <p className="mt-2 break-all font-mono text-xs text-zinc-500">nullifier 0x{BigInt(pass.nullifier).toString(16)}</p>
+          <Link href="/key" className="mt-3 block underline">My digital key →</Link>
         </section>
         <InvitePanel />
         </>

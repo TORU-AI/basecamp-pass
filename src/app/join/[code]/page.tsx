@@ -43,7 +43,7 @@ export default function JoinPage({ params }: { params: Promise<{ code: string }>
           <p className="mt-2 text-sm">Verified with: {pass.credential}</p>
           <p className="text-sm">Valid until: {new Date(pass.validUntil).toLocaleString()}</p>
           <p className="mt-2 break-all font-mono text-xs text-zinc-500">nullifier 0x{BigInt(pass.nullifier).toString(16)}</p>
-          <Link href="/door" className="mt-4 block text-center underline">Go to the door →</Link>
+          <Link href="/key" className="mt-4 block text-center underline">Open my digital key →</Link>
         </section>
       ) : error ? (
         <p className="rounded-xl bg-red-50 p-4 text-red-700 dark:bg-red-950 dark:text-red-300">{error}</p>
