@@ -16,3 +16,5 @@ Following the ETHGlobal Tokyo 2026 AI guidelines.
 | 09-25 21:20–23:20 | Host check-in, invites, join, door, register, Neon schema | wrote code under Toru's direction; Toru tested every step with the simulator and his real World App |
 | 09-25 22:00–23:10 | Debugging staging nullifiers / credential_unavailable | built the /debug page Toru showed to the World team; switched to the preset that worked in Toru's real test |
 | 09-25 23:20 | Deploy to Vercel (https://basecamp-pass.vercel.app) | ran the deploy after Toru approved |
+| 09-26 15:40–23:10 | Ethereum access keys: survey of the codebase, design (Toru chose Sepolia, no user wallet, screen-only lock), soulbound AccessKey contract, door = World ID + on-chain key, /admin, /key, guest key on join, anvil tests | surveyed and wrote code under Toru's direction; Toru got Sepolia ETH from the faucet and approved the deploy |
+| 09-26 23:10 | Contract deployed to Sepolia `0xcd3c9dfdbe4093c6fe53b01a1700a348383d53f1`; production deploy | ran the deploy after Toru approved |
